@@ -22,20 +22,38 @@ const KeySetForm: React.FC<KeySetFormProps> = ({ keySet, onSave }) => {
         setApiKey(keySet.apiKey);
     }, [keySet]);
 
+    const alphaNumeric = (str: any) =>{
+        for(var i = 0; i<str.length; i++){
+            var char1 = str.charAt(i);
+            var char = char1.charCodeAt(0);
+            if ((char > 47 && char < 58) || (char > 64 && char < 91) || (char > 96 && char < 123)) {
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const newKeySet = { ...keySet, provider, model, apiKey };
-        let keySets = JSON.parse(localStorage.getItem('keySets') || '[]');
 
-        // Update existing key set or add new key set
-        if (keySets.some((ks: any) => ks.id === keySet.id)) {
-            keySets = keySets.map((ks: any) => (ks.id === keySet.id ? newKeySet : ks));
-        } else {
-            keySets.push(newKeySet);
+        if(alphaNumeric(newKeySet.apiKey)){
+            let keySets = JSON.parse(localStorage.getItem('keySets') || '[]');
+
+            // Update existing key set or add new key set
+            if (keySets.some((ks: any) => ks.id === keySet.id)) {
+                keySets = keySets.map((ks: any) => (ks.id === keySet.id ? newKeySet : ks));
+            } else {
+                keySets.push(newKeySet);
+            }
+    
+            localStorage.setItem('keySets', JSON.stringify(keySets));
+            onSave(newKeySet); // This will update the parent state as well
         }
-
-        localStorage.setItem('keySets', JSON.stringify(keySets));
-        onSave(newKeySet); // This will update the parent state as well
+        else{
+            alert("Error API is not alpha numeric")
+        }
     };
 
     return (
